@@ -1,19 +1,23 @@
 {
   "headers": [
     {
-      "source": "/Build/(.\.wasm)",
+      "source": "/Build/(.*\\.wasm)",
       "headers": [
         { "key": "Content-Encoding", "value": "br" },
         { "key": "Content-Type", "value": "application/wasm" }
       ]
     },
     {
-      "source": "/Build/(.\.data)",
-      "headers": [{ "key": "Content-Encoding", "value": "br" }]
+      "source": "/Build/(.*\\.data)",
+      "headers": [
+        { "key": "Content-Encoding", "value": "br" }
+      ]
     },
     {
-      "source": "/Build/(.*\.js)",
-      "headers": [{ "key": "Content-Encoding", "value": "br" }]
+      "source": "/Build/(.*\\.js)",
+      "headers": [
+        { "key": "Content-Encoding", "value": "br" }
+      ]
     }
   ]
 }
