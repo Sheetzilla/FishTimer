@@ -1,54 +1,60 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Cube</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body style="margin:0; overflow:hidden;">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, viewport-fit=cover">
+  <title>Cube</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #unity-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+</head>
+
+<body>
   <canvas id="unity-canvas" tabindex="-1"></canvas>
 
   <script>
-    const canvas = document.querySelector("#unity-canvas");
-
-    const buildUrl = "Build";
-    const loaderUrl = buildUrl + "/Cube.loader.js";
+    const canvas = document.getElementById("unity-canvas");
 
     const config = {
       arguments: [],
-      dataUrl: buildUrl + "/Cube.data.br",
-      frameworkUrl: buildUrl + "/Cube.framework.js.br",
-      codeUrl: buildUrl + "/Cube.wasm.br",
+      dataUrl: "Build/Cube.data.br",
+      frameworkUrl: "Build/Cube.framework.js.br",
+      codeUrl: "Build/Cube.wasm.br",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "DefaultCompany",
       productName: "Cube",
       productVersion: "0.1.0",
+      matchWebGLToCanvasSize: true
     };
 
-    function resizeCanvas() {
-      canvas.style.width = "100vw";
-      canvas.style.height = "100vh";
-    }
-
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      const meta = document.createElement("meta");
-      meta.name = "viewport";
-      meta.content =
-        "width=device-width,height=device-height,initial-scale=1.0,user-scalable=no";
-      document.head.appendChild(meta);
-    }
-
     const script = document.createElement("script");
-    script.src = loaderUrl;
+    script.src = "Build/Cube.loader.js";
 
     script.onload = () => {
       createUnityInstance(canvas, config)
-        .catch((err) => console.error(err));
+        .then((unityInstance) => {
+          console.log("Unity loaded");
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     };
 
     document.body.appendChild(script);
