@@ -21,7 +21,9 @@ export default async function handler(req, res) {
   await supabase.from('licenses').insert({
     email: data.email,
     key: key,
-    used: false,
+    activations: 0,
+    max_activations: 3,
+    device_ids: [],
   });
 
   // Send email via Brevo
