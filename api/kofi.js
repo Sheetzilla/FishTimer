@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       email: data.email,
       key: key,
       activations: 0,
-      max_activations: 3,
+      max_activations: 5,
       device_ids: [],
     });
 
