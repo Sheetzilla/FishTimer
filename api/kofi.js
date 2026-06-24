@@ -17,10 +17,7 @@ export default async function handler(req, res) {
 
     const key = 'TIMER-' + crypto.randomUUID().split('-').slice(0, 2).join('-').toUpperCase();
 
-    console.log('Attempting insert with email:', data.email);
-    console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-
-    const { data: insertData, error } = await supabase.from('licenses').insert({
+    const { error } = await supabase.from('licenses').insert({
       email: data.email,
       key: key,
       activations: 0,
@@ -29,15 +26,17 @@ export default async function handler(req, res) {
     });
 
     if (error) {
-      console.error('Supabase insert error:', JSON.stringify(error));
+      console.error('Supabase error:', error.message);
       return res.status(500).send('DB error');
     }
 
-    console.log('Insert successful:', insertData);
-    return res.status(200).send('OK');
-
-  } catch (err) {
-    console.error('Caught error:', err.message);
-    return res.status(500).send('Server error');
-  }
-}
+    await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'FishTimer', email: 'sheet@sleetsheet.com' },
+        to: [{ email: data.email }],
+        subject: 'Your FishTimer license key',
