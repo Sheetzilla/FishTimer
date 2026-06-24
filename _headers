@@ -1,20 +1,18 @@
-/Build/*
-  Cache-Control: no-store
-
 /Build/*.br
   Content-Encoding: br
+  Content-Type: application/octet-stream
 
 /Build/*.framework.js.br
-  Content-Type: application/javascript
   Content-Encoding: br
+  Content-Type: application/javascript
 
 /Build/*.wasm.br
-  Content-Type: application/wasm
   Content-Encoding: br
+  Content-Type: application/wasm
 
 /Build/*.data.br
-  Content-Type: application/octet-stream
   Content-Encoding: br
+  Content-Type: application/octet-stream
 
 /Build/*.loader.js
   Content-Type: application/javascript
