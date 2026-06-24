@@ -1,0 +1,21 @@
+/Build/*.gz
+  Cache-Control: no-transform
+  Content-Encoding: gzip
+
+/Build/*.framework.js.gz
+  Cache-Control: no-transform
+  Content-Encoding: gzip
+  Content-Type: application/javascript
+
+/Build/*.wasm.gz
+  Cache-Control: no-transform
+  Content-Encoding: gzip
+  Content-Type: application/wasm
+
+/Build/*.data.gz
+  Cache-Control: no-transform
+  Content-Encoding: gzip
+  Content-Type: application/octet-stream
+
+/Build/*.loader.js
+  Content-Type: application/javascript

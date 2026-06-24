@@ -30,9 +30,9 @@ canvas.width = window.innerWidth * window.devicePixelRatio;
 canvas.height = window.innerHeight * window.devicePixelRatio;
 
 const config = {
-  dataUrl: "Build/Cube.data",
-  frameworkUrl: "Build/Cube.framework.js",
-  codeUrl: "Build/Cube.wasm",
+  dataUrl: "Build/Cube.data.gz",
+  frameworkUrl: "Build/Cube.framework.js.gz",
+  codeUrl: "Build/Cube.wasm.gz",
   streamingAssetsUrl: "StreamingAssets",
   companyName: "Sheet",
   productName: "FishTimer",
@@ -43,9 +43,3 @@ const script = document.createElement("script");
 script.src = "Build/Cube.loader.js";
 script.onload = () => {
   createUnityInstance(canvas, config)
-    .catch(console.error);
-};
-document.body.appendChild(script);
-</script>
-</body>
-</html>
