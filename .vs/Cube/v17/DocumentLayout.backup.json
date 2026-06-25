@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\Public\\UnityGames\\Cube\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\timer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\timer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|c:\\users\\public\\unitygames\\cube\\assets\\passcheck.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\passcheck.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|c:\\users\\public\\unitygames\\cube\\assets\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\timer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\timer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\authguard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,6 +21,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\models\\scriptkuutio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\models\\scriptkuutio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|solutionrelative:assets\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A43657F2-DFD0-F1AD-69C5-B86E0C471339}|Assembly-CSharp.csproj|C:\\Users\\Public\\UnityGames\\Cube\\assets\\timeinputfilter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -34,20 +38,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
+              "Title": "PassCheck.cs",
+              "DocumentMoniker": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\PassCheck.cs",
+              "RelativeDocumentMoniker": "Assets\\PassCheck.cs",
+              "ToolTip": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\PassCheck.cs",
+              "RelativeToolTip": "Assets\\PassCheck.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAADwvygAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-23T13:39:46.949Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "audioManager.cs",
               "DocumentMoniker": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\audioManager.cs",
               "RelativeDocumentMoniker": "Assets\\audioManager.cs",
               "ToolTip": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\audioManager.cs",
               "RelativeToolTip": "Assets\\audioManager.cs",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAAACoAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAYwCEAAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-21T16:31:59.235Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-21T16:31:59.235Z"
             },
             {
               "$type": "Document",
@@ -57,14 +73,13 @@
               "RelativeDocumentMoniker": "Assets\\AuthGuard.cs",
               "ToolTip": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\AuthGuard.cs",
               "RelativeToolTip": "Assets\\AuthGuard.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-21T09:02:53.385Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-21T09:02:53.385Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "TimeInputFilter.cs",
               "DocumentMoniker": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\TimeInputFilter.cs",
               "RelativeDocumentMoniker": "Assets\\TimeInputFilter.cs",
@@ -76,16 +91,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "timer.cs",
               "DocumentMoniker": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\timer.cs",
               "RelativeDocumentMoniker": "Assets\\timer.cs",
               "ToolTip": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\timer.cs",
               "RelativeToolTip": "Assets\\timer.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAowDwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABoBAAAAAAAAAAAIwEABAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-20T14:32:15.227Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-20T14:32:15.227Z"
             },
             {
               "$type": "Document",
@@ -95,10 +109,9 @@
               "RelativeDocumentMoniker": "Assets\\GameManager.cs",
               "ToolTip": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\GameManager.cs",
               "RelativeToolTip": "Assets\\GameManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAABoAAAAAAAAAAAAQwAgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-20T12:40:12.809Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-20T12:40:12.809Z"
             },
             {
               "$type": "Document",
@@ -108,7 +121,7 @@
               "RelativeDocumentMoniker": "Assets\\Models\\ScriptKuutio.cs",
               "ToolTip": "C:\\Users\\Public\\UnityGames\\Cube\\Assets\\Models\\ScriptKuutio.cs",
               "RelativeToolTip": "Assets\\Models\\ScriptKuutio.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-19T18:19:17.224Z"
             }

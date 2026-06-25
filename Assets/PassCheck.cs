@@ -1,36 +1,53 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 using TMPro;
+using System.Collections;
 
 public class PasswordCheck : MonoBehaviour
 {
     public TMP_InputField passwordField;
     public string nextScene = "GameScene";
-
+    public TextMeshProUGUI statusText;
     const string UnlockKey = "unlocked";
-
-    // "juhannuskuutio7" built from char codes so it isn't a plain literal in the binary
-    string GetPass()
-    {
-        char[] c = {
-            (char)106, (char)117, (char)104, (char)97, (char)110,
-            (char)110, (char)117, (char)115,                      
-            (char)107, (char)117, (char)117, (char)116, (char)105, (char)111, 
-            (char)55                                              
-        };
-        return new string(c);
-    }
+    const string DeviceIdKey = "DeviceId";
 
     void Start()
     {
-        // Already unlocked previously? Skip straight to the game.
         if (PlayerPrefs.GetInt(UnlockKey, 0) == 1)
             SceneManager.LoadScene(nextScene);
     }
 
     public void Submit()
     {
-        if (passwordField.text.Trim().ToLower() == GetPass())
+        string key = passwordField.text.Trim().ToUpper();
+        if (string.IsNullOrEmpty(key))
+            return;
+        statusText.text = "Checking...";
+        StartCoroutine(ValidateKey(key));
+    }
+
+    IEnumerator ValidateKey(string key)
+    {
+        string deviceId = PlayerPrefs.GetString(DeviceIdKey, "");
+        if (string.IsNullOrEmpty(deviceId))
+        {
+            deviceId = System.Guid.NewGuid().ToString();
+            PlayerPrefs.SetString(DeviceIdKey, deviceId);
+            PlayerPrefs.Save();
+        }
+
+        string url =
+            "https://shopkofi.sleetsheet-st.workers.dev/validate?key=" +
+            UnityWebRequest.EscapeURL(key) +
+            "&device=" +
+            UnityWebRequest.EscapeURL(deviceId);
+
+        using UnityWebRequest req = UnityWebRequest.Get(url);
+        yield return req.SendWebRequest();
+
+        if (req.result == UnityWebRequest.Result.Success &&
+            req.downloadHandler.text == "valid")
         {
             PlayerPrefs.SetInt(UnlockKey, 1);
             PlayerPrefs.Save();
@@ -38,11 +55,13 @@ public class PasswordCheck : MonoBehaviour
         }
         else
         {
-            Debug.Log("Wrong password");
+            if (req.downloadHandler.text == "limit")
+                statusText.text = "Device limit reached. Contact support.";
+            else
+                statusText.text = "Invalid key. Please try again.";
         }
     }
 
-    // Optional: call this to make the user log in again.
     public void Logout()
     {
         PlayerPrefs.DeleteKey(UnlockKey);

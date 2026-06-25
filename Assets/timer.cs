@@ -1,7 +1,6 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class timer : MonoBehaviour
 {
@@ -29,6 +28,14 @@ public class timer : MonoBehaviour
     private Coroutine brrRoutine;
     public bool IsBeeping { get; private set; }
 
+    // How long (in seconds) the smooth rotation-reset takes when time runs out
+    public float rotationResetDuration = 0.8f;
+    private Coroutine resetRotationRoutine;
+
+    // Wall-clock tracking — survives tab sleep/throttling
+    private double startRealTime;      // UTC epoch seconds at the moment the timer was (re)started
+    private float startTimeRemaining;  // timeRemaining value captured at that same moment
+
     void Start()
     {
         cube = GetComponent<ScriptKuutio>();
@@ -41,18 +48,18 @@ public class timer : MonoBehaviour
         if (!timerIsRunning)
             return;
 
+        // Derive timeRemaining from the real wall-clock so the browser
+        // sleeping / throttling the tab cannot cause drift or freezing.
+        double elapsed = GetEpochSeconds() - startRealTime;
+        timeRemaining = Mathf.Max(0f, startTimeRemaining - (float)elapsed);
+
         int minutes = Mathf.FloorToInt(timeRemaining / 60);
         int seconds = Mathf.FloorToInt(timeRemaining % 60);
         inputField.text = minutes.ToString("00") + ":" + seconds.ToString("00");
 
-        if (timeRemaining > 0)
-        {
-            timeRemaining -= Mathf.Min(Time.deltaTime, 0.1f);
-        }
-        else
+        if (timeRemaining <= 0)
         {
             Debug.Log("Time has run out!");
-            timeRemaining = 0;
             timerIsRunning = false;
             inputField.text = "00:00";
 
@@ -67,11 +74,144 @@ public class timer : MonoBehaviour
             inputField.interactable = true;
             Button.SetActive(false);
             timeLimit = 0;
+
+            // Smoothly rotate the main cube back to zero
+            if (resetRotationRoutine != null)
+                StopCoroutine(resetRotationRoutine);
+            resetRotationRoutine = StartCoroutine(SmoothResetRotation());
         }
     }
 
+    // Returns seconds since the Unix epoch using the system clock.
+    // System.DateTime.UtcNow is NOT driven by Unity's game loop, so the
+    // browser cannot throttle it when the tab goes to sleep.
+    private double GetEpochSeconds()
+    {
+        return (System.DateTime.UtcNow
+                - new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc))
+               .TotalSeconds;
+    }
+
+    // Anchors the wall-clock reference point to right now.
+    // Call this every time the timer starts or resumes.
+    private void AnchorWallClock(float currentTimeRemaining)
+    {
+        startRealTime = GetEpochSeconds();
+        startTimeRemaining = currentTimeRemaining;
+    }
+
+    // -----------------------------------------------------------------------
+    // Public timer controls
+    // -----------------------------------------------------------------------
+
+    public void StartTimer()
+    {
+        if (timerIsRunning) return;
+        if (!TryParseTime(out float seconds) || seconds <= 0)
+            return;
+
+        timeRemaining = seconds;
+        timeLimit = seconds;
+        timerIsRunning = true;
+
+        AnchorWallClock(seconds);
+
+        inputField.interactable = false;
+        cube.isSpinning = true;
+        cube.buttonText.text = "Stop";
+        gameManager.StartDropTimer();
+        Button.SetActive(true);
+    }
+
+    public void StopTimer()
+    {
+        timerIsRunning = false;
+        gameManager.StopDropTimer();
+    }
+
+    public void ResumeTimer()
+    {
+        if (inputField.text == "00:00")
+            return;
+
+        if (!TryParseTime(out float seconds) || seconds <= 0)
+            return;
+
+        timeRemaining = seconds;
+        timeLimit = seconds;
+        timerIsRunning = true;
+
+        AnchorWallClock(seconds);
+
+        inputField.interactable = false;
+        cube.isSpinning = true;
+        cube.buttonText.text = "Stop";
+        gameManager.StartDropTimer();
+    }
+
+    // Called when the player finishes editing the input field.
+    public void Changed(string value)
+    {
+        inputField.text = FormatTime(value);
+
+        if (TryParseTime(out float seconds))
+        {
+            timeRemaining = seconds;
+            timeLimit = seconds;
+        }
+
+        // Editing the timer fully re-arms the game: stop running and drop all
+        // existing cubes (they fall away visually rather than vanishing). The
+        // player must respawn all 300 cubes before the timer starts again.
+        timerIsRunning = false;
+        gameManager.StopDropTimer();
+        gameManager.DropAllCubes();
+        cube.isSpinning = false;
+        cube.buttonText.text = "Start";
+        inputField.interactable = true;
+        Button.SetActive(false);
+    }
+
+    // -----------------------------------------------------------------------
+    // Rotation reset
+    // -----------------------------------------------------------------------
+
+    // Smoothly interpolates the main cube's rotation back to identity (0,0,0)
+    // over rotationResetDuration seconds using a smooth-step ease.
+    private IEnumerator SmoothResetRotation()
+    {
+        // spawnattuKuutio is the actual instantiated rotating cube with the Rigidbody
+        Transform cubeTransform = cube.spawnattuKuutio.transform;
+        Rigidbody cubeRb = cube.spawnattuKuutio.GetComponent<Rigidbody>();
+
+        // Stop any remaining angular velocity immediately so physics
+        // doesn't fight the rotation we're about to drive manually.
+        if (cubeRb != null)
+            cubeRb.angularVelocity = Vector3.zero;
+
+        Quaternion startRot = cubeTransform.rotation;
+        Quaternion targetRot = Quaternion.Euler(0f, 90f, 0f);
+        float elapsed = 0f;
+
+        while (elapsed < rotationResetDuration)
+        {
+            elapsed += Time.deltaTime;
+            // SmoothStep eases in and out so it doesn't feel mechanical
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / rotationResetDuration);
+            cubeTransform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+            yield return null;
+        }
+
+        cubeTransform.rotation = targetRot;
+        resetRotationRoutine = null;
+    }
+
+    // -----------------------------------------------------------------------
+    // Beeping
+    // -----------------------------------------------------------------------
+
     // Starts the repeated Brr playback. Playback stops automatically after
-    // brrRepeat plays or earlier if StopBeeping() is called (e.g. main cube pressed).
+    // brrRepeat plays or earlier if StopBeeping() is called.
     public void StartBeeping()
     {
         if (IsBeeping)
@@ -83,7 +223,6 @@ public class timer : MonoBehaviour
         if (brrRoutine != null)
             StopCoroutine(brrRoutine);
 
-        
         IsBeeping = true;
         brrRoutine = StartCoroutine(PlayBrrRepeated());
     }
@@ -124,10 +263,9 @@ public class timer : MonoBehaviour
             if (!IsBeeping) // allow external stop
                 break;
 
-            Debug.Log($"timer: playing Brr iteration {i+1}/{times}");
+            Debug.Log($"timer: playing Brr iteration {i + 1}/{times}");
             audioManager.instance.PlayAudio(Brr, this.transform, volume: timerVolume);
 
-            // when next beep sound starts
             yield return new WaitForSeconds(brrInterval);
         }
 
@@ -135,6 +273,10 @@ public class timer : MonoBehaviour
         brrRoutine = null;
         IsBeeping = false;
     }
+
+    // -----------------------------------------------------------------------
+    // Helpers
+    // -----------------------------------------------------------------------
 
     // Parses "MM:SS" into total seconds. Returns false if the field is empty/invalid.
     private bool TryParseTime(out float totalSeconds)
@@ -149,70 +291,6 @@ public class timer : MonoBehaviour
             return false;
         totalSeconds = minutes * 60 + seconds;
         return true;
-    }
-
-    public void StartTimer()
-    {
-        if (timerIsRunning) return;
-        if (!TryParseTime(out float seconds) || seconds <= 0)
-            return;
-
-        timeRemaining = seconds;
-        timeLimit = seconds;
-        timerIsRunning = true;
-        inputField.interactable = false;
-
-        cube.isSpinning = true;
-        cube.buttonText.text = "Stop";
-        gameManager.StartDropTimer();
-        Button.SetActive(true);
-    }
-
-    public void StopTimer()
-    {
-        timerIsRunning = false;
-        gameManager.StopDropTimer();
-    }
-
-    public void ResumeTimer()
-    {
-        if (inputField.text == "00:00")
-            return;
-
-        if (!TryParseTime(out float seconds) || seconds <= 0)
-            return;
-
-        timeRemaining = seconds;
-        timeLimit = seconds;
-        timerIsRunning = true;
-        inputField.interactable = false;
-
-        cube.isSpinning = true;
-        cube.buttonText.text = "Stop";
-        gameManager.StartDropTimer();
-    }
-
-    // Called when the player finishes editing the input field.
-    public void Changed(string value)
-    {
-        inputField.text = FormatTime(value);
-
-        if (TryParseTime(out float seconds))
-        {
-            timeRemaining = seconds;
-            timeLimit = seconds;
-        }
-
-        // Editing the timer fully re-arms the game: stop running and drop all
-        // existing cubes (they fall away visually rather than vanishing). The
-        // player must respawn all 300 cubes before the timer starts again.
-        timerIsRunning = false;
-        gameManager.StopDropTimer();
-        gameManager.DropAllCubes();
-        cube.isSpinning = false;
-        cube.buttonText.text = "Start";
-        inputField.interactable = true;
-        Button.SetActive(false);
     }
 
     string FormatTime(string input)

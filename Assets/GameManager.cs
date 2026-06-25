@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviour
     private AudioClip Blop2;
     public float blopVolume = 1f;
 
-
     // World Y below which a dropped cube is destroyed. Set this in the Inspector
     // to a height comfortably below the bottom of the visible play area.
     public float despawnY = -10f;
@@ -30,6 +29,10 @@ public class GameManager : MonoBehaviour
     // Cube count captured when the timer starts, so the pile drains linearly
     // against this fixed baseline instead of compounding off the shrinking count.
     private int startingCubeCount = 0;
+
+    // Wall-clock time (epoch seconds) of the last dropCubes() call.
+    // Used so the drop loop stays synced to real time even when the tab sleeps.
+    private double lastDropRealTime = 0;
 
     void Start()
     {
@@ -92,20 +95,16 @@ public class GameManager : MonoBehaviour
                 Random.Range(-0.3f, 0.3f),
                 0f);
 
-            //Pikkuset spwan
-
             GameObject spawnattu = Instantiate(
                 pikku,
                 hit.collider.gameObject.transform.position + jitter,
                 Quaternion.identity);
 
-            // NOTE: sound is played once on click in Update; avoid creating sound for each spawned mini
             Rigidbody rb = spawnattu.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                // Help cubes settle and actually fall asleep instead of jittering.
                 rb.sleepThreshold = 0.05f;
-                rb.maxDepenetrationVelocity = 1f; // don't shove overlaps apart violently
+                rb.maxDepenetrationVelocity = 1f;
 #if UNITY_2022_3_OR_NEWER
                 rb.linearDamping = 0.1f;
                 rb.angularDamping = 0.5f;
@@ -147,8 +146,8 @@ public class GameManager : MonoBehaviour
 
         float percentRemaining = timerScript.timeRemaining / timerScript.timeLimit;
         // Target keep-count is a fraction of the ORIGINAL pile, not the current
-        // (shrinking) one � otherwise the percentage compounds each second and the
-        // pile collapses far too fast (e.g. half gone in the first ~50s).
+        // (shrinking) one — otherwise the percentage compounds each second and the
+        // pile collapses far too fast.
         int cubesToKeep = Mathf.RoundToInt(startingCubeCount * percentRemaining);
 
         for (int i = cubes.Count - 1; i >= 0; i--)
@@ -157,9 +156,6 @@ public class GameManager : MonoBehaviour
             {
                 StartCoroutine(RemoveCubeAfterDelay(cubes[i]));
             }
-            // Cubes we're keeping are left untouched. Previously they were
-            // WakeUp()'d every second, which re-triggered the pile's jitter;
-            // Unity already wakes a body when a neighbor it touches is destroyed.
         }
     }
 
@@ -172,9 +168,7 @@ public class GameManager : MonoBehaviour
         if (col != null)
             col.enabled = false;
 
-        // Wake the cube and give it a small downward nudge. Without this a cube
-        // that was asleep at the top of the pile just floats in place, because a
-        // sleeping rigidbody won't re-evaluate gravity once its supports vanish.
+        // Wake the cube and give it a small downward nudge.
         Rigidbody rb = cube.GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -182,11 +176,7 @@ public class GameManager : MonoBehaviour
             rb.AddForce(Vector3.down * 2f, ForceMode.VelocityChange);
         }
 
-        // Wait until the cube falls below the despawnY world height, then destroy
-        // it. Using a fixed Y line (instead of the camera viewport) means cubes
-        // squeezed off sideways or sitting above the top are never culled early �
-        // a cube is only removed once it has genuinely dropped out the bottom.
-        // A safety timeout still cleans up anything that somehow never falls.
+        // Wait until the cube falls below despawnY, with a safety timeout.
         float timeout = 20f;
         float elapsed = 0f;
         while (cube != null && elapsed < timeout)
@@ -206,8 +196,7 @@ public class GameManager : MonoBehaviour
         spawned = cubes.Count;
     }
 
-    // Destroys every cube and resets the counter. Called when the player edits
-    // the time, forcing a full respawn back up to 300 before the timer restarts.
+    // Destroys every cube and resets the counter.
     public void ClearAllCubes()
     {
         for (int i = 0; i < cubes.Count; i++)
@@ -219,10 +208,7 @@ public class GameManager : MonoBehaviour
         spawned = 0;
     }
 
-    // Drops every cube using the same delayed-removal animation as dropCubes,
-    // so on a time edit the player sees them fall away instead of vanishing.
-    // RemoveCubeAfterDelay updates spawned as each one is destroyed, so the
-    // player can begin respawning the new 300 immediately.
+    // Drops every cube with the fall animation so the player sees them leave.
     public void DropAllCubes()
     {
         for (int i = cubes.Count - 1; i >= 0; i--)
@@ -238,11 +224,11 @@ public class GameManager : MonoBehaviour
     }
 
     // Public start/stop wrappers so other scripts can control the drop loop
-    // by handle rather than by string name (string stop never matched the
-    // reference-started coroutine before).
+    // by handle rather than by string name.
     public void StartDropTimer()
     {
         StopDropTimer();
+        lastDropRealTime = GetEpochSeconds();
         dropTimerRoutine = StartCoroutine(dropTimer());
     }
 
@@ -255,13 +241,40 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Drop loop that uses the real wall-clock instead of WaitForSeconds(1f).
+    // When the tab wakes up after sleeping, elapsed real time is calculated and
+    // dropCubes() is called once for every whole second that passed while away,
+    // catching the cube count up to match the timer display immediately.
     public IEnumerator dropTimer()
     {
         while (timerScript.timerIsRunning)
         {
-            yield return new WaitForSeconds(1f);
-            dropCubes();
+            yield return null; // check every frame — very cheap
+
+            double now = GetEpochSeconds();
+            double secondsSinceLastDrop = now - lastDropRealTime;
+
+            // Fire once per real second elapsed (catch up if tab was asleep).
+            if (secondsSinceLastDrop >= 1.0)
+            {
+                int ticksMissed = Mathf.FloorToInt((float)secondsSinceLastDrop);
+                lastDropRealTime += ticksMissed; // advance anchor by whole seconds only
+
+                // dropCubes() reads timerScript.timeRemaining which is already
+                // corrected by the wall-clock in timer.cs, so a single call is
+                // enough — it will drop everything that should have been dropped
+                // while the tab was away in one pass.
+                dropCubes();
+            }
         }
         dropTimerRoutine = null;
+    }
+
+    // Returns seconds since the Unix epoch via the system clock (not Unity time).
+    private double GetEpochSeconds()
+    {
+        return (System.DateTime.UtcNow
+                - new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc))
+               .TotalSeconds;
     }
 }
